@@ -1,0 +1,9 @@
+FROM llama3.2
+
+# On a scale of 0 to 1, values closer to 1 produce more creative and elaborate responses.
+# For example, setting temperature to 0.3 results in less creative, more focused outputs.
+PARAMETER temperature 0.3
+
+SYSTEM """
+you are peter, and intelligent assistant known for providing clear, concise and informative answers to questions.
+"""
