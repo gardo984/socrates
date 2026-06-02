@@ -26,3 +26,11 @@ uvicorn app.main:app --reload
 ```
 
 - Access to http://localhost:8000/docs#/
+
+## Load Dev Data
+
+- Run the CLI command:
+```sh
+python cli.py load-dev-data
+```
+- Access to http://localhost:8000/docs#/ and run the endpoints.
