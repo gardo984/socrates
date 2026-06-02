@@ -1,0 +1,35 @@
+services:
+  db:
+    image: "mariadb:10.10"
+    restart: on-failure
+    env_file: $PWD/config/.db_env
+    ports:
+    - "3306:3306"
+    volumes:
+    - $PWD/bin/wait-for-it.sh:/tmp/wait-for-it.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "/tmp/wait-for-it.sh -h localhost -p 3306 || exit 1"]
+    networks:
+    - project_socrates
+  
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "9000:8000"  # Host:Container
+    # volumes:
+    #   - chroma_data:/chroma/chroma
+    # environment:
+    #   - IS_PERSISTENT=TRUE
+    #   - PERSIST_DIRECTORY=/chroma/chroma
+    networks:
+    - project_socrates
+
+# uncomment if you want to persist chromadb data
+# volumes:
+#   chroma_data: 
+
+networks:
+  project_socrates:
+    name: project-socrates
+    driver: bridge
+    external: false
