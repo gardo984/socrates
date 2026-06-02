@@ -4,13 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from app.db.database import engine, Base, get_db
 from app.db.models import User
-from app.routes import users, documents
-
+from app.routes import users, documents, conversations
 
 app = FastAPI()
 
 app.include_router(users.router)
 app.include_router(documents.router)
+app.include_router(conversations.router)
 
 # Add before defining routes, after app = FastAPI()
 app.add_middleware(
