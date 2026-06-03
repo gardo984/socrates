@@ -162,6 +162,10 @@ Thumbs.db
 api/venv/
 prototype/venv/
 
+# Node / Vue
+node_modules/
+client/dist/
+client/*.local
 
 api/app/.env_local
 api/app/entrypoint.sh
