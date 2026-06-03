@@ -1,13 +1,19 @@
 import { createStore } from 'vuex'
-import exampleModule from './modules/example'
+import usersModule, { type UsersState } from './modules/users'
+import documentsModule, { type DocumentsState } from './modules/documents'
+import conversationsModule, { type ConversationsState } from './modules/conversations'
 
 export interface RootState {
-  example: ReturnType<typeof exampleModule.state>
+  users: UsersState
+  documents: DocumentsState
+  conversations: ConversationsState
 }
 
 const store = createStore<RootState>({
   modules: {
-    example: exampleModule,
+    users: usersModule,
+    documents: documentsModule,
+    conversations: conversationsModule,
   },
 })
 

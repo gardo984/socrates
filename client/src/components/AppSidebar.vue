@@ -6,15 +6,19 @@
     <nav class="sidebar-nav">
       <router-link to="/" class="nav-item" exact-active-class="active">
         <span class="nav-icon">&#x1F3E0;</span>
-        <span class="nav-label">Home</span>
+        <span class="nav-label">Dashboard</span>
       </router-link>
-      <router-link to="/about" class="nav-item" active-class="active">
-        <span class="nav-icon">&#x2139;&#xFE0F;</span>
-        <span class="nav-label">About</span>
+      <router-link to="/users" class="nav-item" active-class="active">
+        <span class="nav-icon">&#x1F465;</span>
+        <span class="nav-label">Users</span>
       </router-link>
-      <router-link to="/contact" class="nav-item" active-class="active">
-        <span class="nav-icon">&#x2709;&#xFE0F;</span>
-        <span class="nav-label">Contact</span>
+      <router-link to="/documents" class="nav-item" active-class="active">
+        <span class="nav-icon">&#x1F4C4;</span>
+        <span class="nav-label">Documents</span>
+      </router-link>
+      <router-link to="/conversations" class="nav-item" active-class="active">
+        <span class="nav-icon">&#x1F4AC;</span>
+        <span class="nav-label">Conversations</span>
       </router-link>
     </nav>
   </aside>
@@ -68,7 +72,6 @@
   font-size: 0.9rem;
   font-weight: 500;
   transition: background-color 0.15s, color 0.15s;
-  border-radius: 0;
   margin: 0 8px;
   border-radius: 6px;
 }
