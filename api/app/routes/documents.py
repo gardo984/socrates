@@ -3,8 +3,9 @@ from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.db.database import get_db
-from app.db.models import Document
+from app.db.models import Document, User
 from app.schemas.document import DocumentResponse
+from app.core.dependencies import get_current_user
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -13,12 +14,19 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 @router.get("/", response_model=List[DocumentResponse])
-def list_documents(db: Session = Depends(get_db)):
+def list_documents(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     return db.query(Document).all()
 
 
 @router.post("/upload", response_model=DocumentResponse, status_code=201)
-def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db)):
+def upload_document(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     if file.content_type not in [
         "text/plain",
         "application/pdf",
@@ -45,7 +53,11 @@ def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db))
 
 
 @router.get("/{document_id}", response_model=DocumentResponse)
-def get_document(document_id: int, db: Session = Depends(get_db)):
+def get_document(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     doc = db.query(Document).filter(Document.id == document_id).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -53,7 +65,11 @@ def get_document(document_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{document_id}", status_code=204)
-def delete_document(document_id: int, db: Session = Depends(get_db)):
+def delete_document(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     doc = db.query(Document).filter(Document.id == document_id).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")

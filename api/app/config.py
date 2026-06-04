@@ -23,9 +23,9 @@ config_data = dict(
     database_name=os.getenv("DATABASE_NAME") or "dbsocrates",
     database_user=os.getenv("DATABASE_USER") or "root",
     database_password=os.getenv("DATABASE_PASSWORD") or "c5402da14d24",
-    # jwt_secret_key=os.getenv("JWT_SECRET_KEY") or "fakesecret",
-    # jwt_algorithm=os.getenv("JWT_ALGORITHM") or "HS256",
-    # jwt_expire_minutes=os.getenv("JWT_EXPIRE_MINUTES") or 5,
+    jwt_secret_key=os.getenv("JWT_SECRET_KEY") or "changeme-in-production",
+    jwt_algorithm=os.getenv("JWT_ALGORITHM") or "HS256",
+    jwt_expire_minutes=int(os.getenv("JWT_EXPIRE_MINUTES") or 60),
 )
 # print("Loaded config variables:", config_data)
 
@@ -36,9 +36,9 @@ class Settings(BaseSettings):
     database_host: Optional[str]
     database_name: Optional[str]
     database_port: Optional[int]
-    # jwt_secret_key: Optional[str]
-    # jwt_algorithm: Optional[str]
-    # jwt_expire_minutes: Optional[int]
+    jwt_secret_key: Optional[str]
+    jwt_algorithm: Optional[str]
+    jwt_expire_minutes: Optional[int]
 
 
 settings = Settings(**config_data)

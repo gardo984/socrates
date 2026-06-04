@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.db.database import get_db
-from app.db.models import Conversation, Message, Document
+from app.db.models import Conversation, Message, Document, User
+from app.core.dependencies import get_current_user
 from app.schemas.conversation_message import (
     ConversationCreate,
     ConversationUpdate,
@@ -18,7 +19,11 @@ router = APIRouter(tags=["conversations", "messages"])
 # --- Conversation Endpoints ---
 
 @router.post("/conversations/", response_model=ConversationResponse, status_code=status.HTTP_201_CREATED)
-def create_conversation(payload: ConversationCreate, db: Session = Depends(get_db)):
+def create_conversation(
+    payload: ConversationCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     document = db.query(Document).filter(Document.id == payload.document_id).first()
     if not document:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
@@ -31,13 +36,22 @@ def create_conversation(payload: ConversationCreate, db: Session = Depends(get_d
 
 
 @router.get("/conversations/", response_model=List[ConversationResponse])
-def list_conversations(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def list_conversations(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     conversations = db.query(Conversation).offset(skip).limit(limit).all()
     return conversations
 
 
 @router.get("/conversations/{conversation_id}", response_model=ConversationResponse)
-def get_conversation(conversation_id: int, db: Session = Depends(get_db)):
+def get_conversation(
+    conversation_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
     if not conversation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
@@ -45,7 +59,12 @@ def get_conversation(conversation_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/conversations/{conversation_id}", response_model=ConversationResponse)
-def update_conversation(conversation_id: int, payload: ConversationUpdate, db: Session = Depends(get_db)):
+def update_conversation(
+    conversation_id: int,
+    payload: ConversationUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
     if not conversation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
@@ -61,7 +80,11 @@ def update_conversation(conversation_id: int, payload: ConversationUpdate, db: S
 
 
 @router.delete("/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_conversation(conversation_id: int, db: Session = Depends(get_db)):
+def delete_conversation(
+    conversation_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
     if not conversation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
@@ -72,7 +95,11 @@ def delete_conversation(conversation_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/documents/{document_id}/conversations", response_model=List[ConversationResponse])
-def get_document_conversations(document_id: int, db: Session = Depends(get_db)):
+def get_document_conversations(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     document = db.query(Document).filter(Document.id == document_id).first()
     if not document:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
@@ -84,7 +111,12 @@ def get_document_conversations(document_id: int, db: Session = Depends(get_db)):
 # --- Message Endpoints ---
 
 @router.post("/conversations/{conversation_id}/messages", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
-def create_message(conversation_id: int, payload: MessageCreate, db: Session = Depends(get_db)):
+def create_message(
+    conversation_id: int,
+    payload: MessageCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
     if not conversation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
@@ -102,7 +134,13 @@ def create_message(conversation_id: int, payload: MessageCreate, db: Session = D
 
 
 @router.get("/conversations/{conversation_id}/messages", response_model=List[MessageResponse])
-def list_messages_for_conversation(conversation_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def list_messages_for_conversation(
+    conversation_id: int,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
     if not conversation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
@@ -112,7 +150,11 @@ def list_messages_for_conversation(conversation_id: int, skip: int = 0, limit: i
 
 
 @router.get("/messages/{message_id}", response_model=MessageResponse)
-def get_message(message_id: int, db: Session = Depends(get_db)):
+def get_message(
+    message_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     message = db.query(Message).filter(Message.id == message_id).first()
     if not message:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
@@ -120,7 +162,12 @@ def get_message(message_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/messages/{message_id}", response_model=MessageResponse)
-def update_message(message_id: int, payload: MessageUpdate, db: Session = Depends(get_db)):
+def update_message(
+    message_id: int,
+    payload: MessageUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     message = db.query(Message).filter(Message.id == message_id).first()
     if not message:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
@@ -138,7 +185,11 @@ def update_message(message_id: int, payload: MessageUpdate, db: Session = Depend
 
 
 @router.delete("/messages/{message_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_message(message_id: int, db: Session = Depends(get_db)):
+def delete_message(
+    message_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     message = db.query(Message).filter(Message.id == message_id).first()
     if not message:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
