@@ -5,11 +5,13 @@ import random
 from datetime import datetime, timezone
 
 from app.db.database import SessionLocal, engine, Base
+from app.schemas.user import UserCreate
 from app.db.models import User, Document, DocumentChunk, Conversation, Message
 
 # Initialize Typer app
 app = typer.Typer()
 fake = Faker()
+DEFAULT_PASSWD = "0e542d2231"
 
 # Ensure tables are created (using the imported Base and engine)
 # Base.metadata.create_all(bind=engine)
@@ -24,6 +26,20 @@ def get_db():
 
 
 @app.command()
+def create_superuser(
+    name: str = "admin",
+    email: str = "admin@admin.com",
+    password: str = DEFAULT_PASSWD,
+    db_session=None,
+):
+    """Create an admin user"""
+    db = SessionLocal() if not db_session else db_session
+    users = [UserCreate(name=name, email=email, password=password),]
+    instance = User.create_users(db, users)
+    typer.echo(f"Superuser {email} created!")
+
+
+@app.command()
 def _load_users(
     count: int = typer.Option(
         10, "--count", "-c", help="Number of fake users to create."
@@ -32,11 +48,16 @@ def _load_users(
     """Loads fake user data into the database."""
     db: Session = next(get_db())
     typer.echo(f"Creating {count} fake users...")
-    for _ in range(count):
-        user = User(name=fake.name(), email=fake.unique.email())
-        db.add(user)
-    db.commit()
-    typer.echo(f"Successfully created {count} users.")
+    user_list = [
+        UserCreate(
+            name=fake.name(),
+            email=fake.email(),
+            password=DEFAULT_PASSWD,
+        )
+        for _ in range(count)
+    ]
+    user_instances = User.create_users(db=db, users=user_list)
+    typer.echo(f"Successfully created {len(user_instances)} users.")
 
 
 @app.command()
@@ -89,7 +110,8 @@ def _load_conversations_messages(
         return
 
     typer.echo(
-        f"Creating {conversations_count} fake conversations with {messages_per_conversation} messages each..."
+        f"Creating {conversations_count} fake conversations with {
+            messages_per_conversation} messages each..."
     )
     for _ in range(conversations_count):
         document = random.choice(documents)
@@ -113,7 +135,8 @@ def _load_conversations_messages(
             db.add(message)
     db.commit()
     typer.echo(
-        f"Successfully created {conversations_count} conversations and their messages."
+        f"Successfully created {
+            conversations_count} conversations and their messages."
     )
 
 

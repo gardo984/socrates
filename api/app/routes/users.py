@@ -39,14 +39,8 @@ def create_user(
     existing = db.query(User).filter(User.email == payload.email).first()
     if existing:
         raise HTTPException(status_code=409, detail="Email already registered")
-    user = User(
-        name=payload.name,
-        email=payload.email,
-        hashed_password=hash_password(payload.password),
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+
+    user = User.create_users(db=db, users=[payload])
     return user
 
 
