@@ -40,7 +40,7 @@ def create_superuser(
 
 
 @app.command()
-def _load_users(
+def load_users(
     count: int = typer.Option(
         10, "--count", "-c", help="Number of fake users to create."
     )
@@ -61,7 +61,7 @@ def _load_users(
 
 
 @app.command()
-def _load_documents(
+def load_documents(
     count: int = typer.Option(
         50, "--count", "-c", help="Number of fake documents to create."
     )
@@ -88,7 +88,7 @@ def _load_documents(
 
 
 @app.command()
-def _load_conversations_messages(
+def load_conversations_messages(
     conversations_count: int = typer.Option(
         20,
         "--conversations-count",
@@ -142,9 +142,10 @@ def _load_conversations_messages(
 
 @app.command()
 def load_dev_data():
-    _load_users(count=10)
-    _load_documents(count=10)
-    _load_conversations_messages(
+    """Load fake data for development purposes."""
+    load_users(count=10)
+    load_documents(count=10)
+    load_conversations_messages(
         conversations_count=10,
         messages_per_conversation=4,
     )

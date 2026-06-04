@@ -13,7 +13,10 @@ from app.schemas.conversation_message import (
     MessageResponse,
 )
 
-router = APIRouter(tags=["conversations", "messages"])
+router = APIRouter(tags=[
+    "conversations",
+    # "messages",
+])
 
 
 # --- Conversation Endpoints ---
@@ -24,9 +27,11 @@ def create_conversation(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    document = db.query(Document).filter(Document.id == payload.document_id).first()
+    document = db.query(Document).filter(
+        Document.id == payload.document_id).first()
     if not document:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
 
     conversation = Conversation(**payload.model_dump())
     db.add(conversation)
@@ -52,9 +57,11 @@ def get_conversation(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    conversation = db.query(Conversation).filter(
+        Conversation.id == conversation_id).first()
     if not conversation:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Conversation not found")
     return conversation
 
 
@@ -65,14 +72,16 @@ def update_conversation(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    conversation = db.query(Conversation).filter(
+        Conversation.id == conversation_id).first()
     if not conversation:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Conversation not found")
 
     update_data = payload.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(conversation, key, value)
-    
+
     db.add(conversation)
     db.commit()
     db.refresh(conversation)
@@ -85,10 +94,12 @@ def delete_conversation(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    conversation = db.query(Conversation).filter(
+        Conversation.id == conversation_id).first()
     if not conversation:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
-    
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Conversation not found")
+
     db.delete(conversation)
     db.commit()
     return None
@@ -102,9 +113,12 @@ def get_document_conversations(
 ):
     document = db.query(Document).filter(Document.id == document_id).first()
     if not document:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
-    
-    conversations = db.query(Conversation).filter(Conversation.document_id == document_id).all()
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+
+    conversations = db.query(Conversation).filter(
+        Conversation.document_id == document_id
+    ).all()
     return conversations
 
 
@@ -117,9 +131,11 @@ def create_message(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    conversation = db.query(Conversation).filter(
+        Conversation.id == conversation_id).first()
     if not conversation:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Conversation not found")
 
     message = Message(
         conversation_id=conversation_id,
@@ -141,11 +157,18 @@ def list_messages_for_conversation(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    conversation = db.query(Conversation).filter(
+        Conversation.id == conversation_id
+    ).first()
     if not conversation:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
-        
-    messages = db.query(Message).filter(Message.conversation_id == conversation_id).offset(skip).limit(limit).all()
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Conversation not found")
+
+    # import ipdb
+    # ipdb.set_trace()
+    messages = db.query(Message).filter(
+        Message.conversation_id == conversation_id
+    ).offset(skip).limit(limit).all()
     return messages
 
 
@@ -157,7 +180,8 @@ def get_message(
 ):
     message = db.query(Message).filter(Message.id == message_id).first()
     if not message:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
     return message
 
 
@@ -170,14 +194,15 @@ def update_message(
 ):
     message = db.query(Message).filter(Message.id == message_id).first()
     if not message:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
 
     update_data = payload.model_dump(exclude_unset=True)
     if "content" in update_data:
         message.content = update_data["content"]
-    if "metadata_" in update_data: # Use metadata_ as it is in the model
+    if "metadata_" in update_data:  # Use metadata_ as it is in the model
         message.metadata_ = update_data["metadata_"]
-    
+
     db.add(message)
     db.commit()
     db.refresh(message)
@@ -192,8 +217,9 @@ def delete_message(
 ):
     message = db.query(Message).filter(Message.id == message_id).first()
     if not message:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
-    
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+
     db.delete(message)
     db.commit()
     return None
