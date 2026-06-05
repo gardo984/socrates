@@ -24,6 +24,26 @@ const router = createRouter({
       name: 'conversations',
       component: () => import('@/views/ConversationsView.vue'),
     },
+    {
+      path: '/user-info',
+      name: 'user-info',
+      component: () => import('@/views/UserInfoView.vue'),
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('@/views/ResetPasswordView.vue'),
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/LoginView.vue'),
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('@/views/ForgotPasswordView.vue'),
+    },
   ],
 })
 

@@ -110,8 +110,7 @@ def load_conversations_messages(
         return
 
     typer.echo(
-        f"Creating {conversations_count} fake conversations with {
-            messages_per_conversation} messages each..."
+        f"Creating {conversations_count} fake conversations with {messages_per_conversation} messages each..."  # noqa
     )
     for _ in range(conversations_count):
         document = random.choice(documents)
@@ -135,8 +134,7 @@ def load_conversations_messages(
             db.add(message)
     db.commit()
     typer.echo(
-        f"Successfully created {
-            conversations_count} conversations and their messages."
+        f"Successfully created {conversations_count} conversations and their messages."  # noqa
     )
 
 

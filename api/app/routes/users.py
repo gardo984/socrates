@@ -5,7 +5,7 @@ from app.db.database import get_db
 from app.db.models import User
 from app.schemas.user import UserCreate, UserUpdate, UserResponse
 from app.core.dependencies import get_current_user
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -54,10 +54,25 @@ def update_user(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+
+    if payload.new_password is not None:
+        if not payload.current_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="current_password is required to set a new password",
+            )
+        if not verify_password(payload.current_password, user.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Current password is incorrect",
+            )
+        user.hashed_password = hash_password(payload.new_password)
+
     if payload.name is not None:
         user.name = payload.name
     if payload.email is not None:
         user.email = payload.email
+
     db.commit()
     db.refresh(user)
     return user

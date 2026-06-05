@@ -21,6 +21,10 @@
             <label>Email</label>
             <input v-model="form.email" type="email" required />
           </div>
+          <div v-if="!editingUser" class="form-group">
+            <label>Password</label>
+            <input v-model="form.password" type="password" required minlength="8" />
+          </div>
           <div class="modal-actions">
             <button type="button" class="btn btn-secondary" @click="closeForm">Cancel</button>
             <button type="submit" class="btn">{{ editingUser ? 'Update' : 'Create' }}</button>
@@ -74,6 +78,7 @@ const editingUser = ref<User | null>(null)
 const form = reactive<UserCreate>({
   name: '',
   email: '',
+  password: '',
 })
 
 onMounted(() => {
@@ -85,6 +90,7 @@ function closeForm() {
   editingUser.value = null
   form.name = ''
   form.email = ''
+  form.password = ''
 }
 
 function startEdit(user: User) {
