@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, Float, ForeignKe
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from app.db.database import Base
+from sqlalchemy.orm import Session
+from typing import List
 
 
 class User(Base):
@@ -10,6 +12,41 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100))
     email = Column(String(100), unique=True, index=True)
+    hashed_password = Column(String(255), nullable=False, default="")
+
+    @classmethod
+    def get_password_hash(cls, value: str) -> str:
+        from app.core.security import hash_password
+
+        return hash_password(value)
+
+    @classmethod
+    def create_users(
+        cls,
+        db: Session,
+        users: List,
+        # current_user: Optional["UserCreate"] = None,
+    ) -> List:
+        users_to_create: List[cls] = []
+        for user_data in users:
+            user_data.password = cls.get_password_hash(user_data.password)
+            payload = user_data.model_dump()
+            payload.pop("password")
+            payload.update({"hashed_password": user_data.password})
+            # if current_user:
+            #     payload.update({"created_by_id": current_user.id})
+            db_user = cls(**payload)
+            db.add(db_user)
+            users_to_create.append(db_user)
+
+        db.commit()
+        for user in users_to_create:
+            db.refresh(user)
+
+        if len(users_to_create) > 1:
+            return users_to_create
+        else:
+            return users_to_create[0]
 
 
 class Document(Base):
@@ -70,7 +107,8 @@ class Message(Base):
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True, index=True)
-    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
+    conversation_id = Column(Integer, ForeignKey(
+        "conversations.id"), nullable=False)
     role = Column(String(20))  # "user" or "assistant"
     content = Column(Text, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

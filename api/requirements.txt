@@ -70,7 +70,9 @@ nvidia-nvshmem-cu13==3.4.5
 nvidia-nvtx==13.0.85
 orjson==3.11.9
 packaging==24.2
+bcrypt==5.0.0
 pillow==12.2.0
+PyJWT==2.13.0
 propcache==0.5.2
 pycparser==3.0
 pydantic==2.13.4

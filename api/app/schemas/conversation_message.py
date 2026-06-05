@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from typing import Optional, Dict, Any
 
@@ -27,7 +27,8 @@ class ConversationResponse(BaseModel):
 # --- Message Schemas ---
 class MessageCreate(BaseModel):
     conversation_id: int
-    role: str = Field(..., pattern="^(user|assistant)$", description="Role can be 'user' or 'assistant'")
+    role: str = Field(..., pattern="^(user|assistant)$",
+                      description="Role can be 'user' or 'assistant'")
     content: str
     metadata_: Optional[Dict[str, Any]] = None
 
@@ -43,8 +44,14 @@ class MessageResponse(BaseModel):
     role: str
     content: str
     created_at: datetime
-    metadata_: Optional[Dict[str, Any]] = Field(None, alias="metadata")
+    metadata_: Optional[Dict[str, Any]] = Field(
+        None,
+        # Use validation_alias to read from the SQLAlchemy object's attribute 'metadata_' # noqa
+        validation_alias="metadata_",
+        # Use serialization_alias to output the JSON key as 'metadata'
+        serialization_alias="metadata",
+    )
 
     class Config:
         from_attributes = True
-        populate_by_name = True # Allow setting by alias
+        populate_by_name = True  # Allow setting by alias

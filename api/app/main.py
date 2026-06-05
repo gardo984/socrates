@@ -1,13 +1,12 @@
 import json
-from fastapi import FastAPI, Depends, Response, status
+from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-from app.db.database import engine, Base, get_db
-from app.db.models import User
-from app.routes import users, documents, conversations
+from app.db.database import engine, Base
+from app.routes import users, documents, conversations, auth
 
 app = FastAPI()
 
+app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(documents.router)
 app.include_router(conversations.router)
@@ -35,7 +34,3 @@ def main():
     )
 
 
-@app.get("/users")
-def get_users(db: Session = Depends(get_db)):
-    users = db.query(User).all()
-    return users
