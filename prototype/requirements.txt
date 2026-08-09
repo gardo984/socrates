@@ -14,4 +14,4 @@ chromadb==1.5.9
 langchain-ollama==1.1.0
 ollama==0.6.2
 docx2txt==0.9
-pypdf==6.12.2
+pypdf==6.15.0
